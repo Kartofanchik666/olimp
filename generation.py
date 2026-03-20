@@ -4,10 +4,10 @@ def calculate_generation(weather_data):
 
     results = []
     for _, row in weather_data.iterrows():
-        solar = row['Облачность'] * 1.1 - 4.1
+        solar = row['Облачность'] * 1.1 +10000
         solar = max(0, solar)  
         
-        wind = row['Ветер'] * 1.70 + 2.3
+        wind = row['Ветер'] * 1.70 + 10000
         
         results.append({
             'Тики': row['Время'],
