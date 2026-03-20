@@ -16,16 +16,16 @@ def calculate_generation(weather_data):
             'Всего': round(solar + wind, 2)
         })
     
-    total_solar = sum(r['СЭС'] for r in results)
-    total_wind = sum(r['Ветряк'] for r in results)
-    total_all = total_solar + total_wind
+    #total_solar = sum(r['СЭС'] for r in results)
+    #total_wind = sum(r['Ветряк'] for r in results)
+    #total_all = total_solar + total_wind
     
-    results.append({
-        'Тики': 'ИТОГО:',
-        'СЭС': round(total_solar, 2),
-        'Ветряк': round(total_wind, 2),
-        'Всего': round(total_all, 2)
-    })
+    #results.append({
+        #'Тики': 'ИТОГО:',
+        #'СЭС': round(total_solar, 2),
+        #'Ветряк': round(total_wind, 2),
+        #'Всего': round(total_all, 2)
+   # })
     
     df_results = pd.DataFrame(results)
     return df_results
