@@ -1,5 +1,6 @@
 """Cost calculation for renewable generation based on weather conditions."""
 
+import random
 from typing import Dict, List, Optional, Sequence
 
 
@@ -13,6 +14,8 @@ WIND_WEAR_PENALTY = 0.02
 
 _HOURS_IN_DAY = 24
 _CONSUMPTION_KEYS = ("consumption", "demand", "load", "consumer_usage")
+PRICE_MIN_PER_KWH = 0.04
+PRICE_MAX_PER_KWH = 0.14
 
 
 def _is_number(value: object) -> bool:
@@ -99,6 +102,9 @@ def _build_lot_hourly_breakdown(
         produced = solar_gen + wind_gen
         used_from_lot = min(produced, consumed)
         total_generation_cost = solar_cost * solar_gen + wind_cost * wind_gen
+        price = random.uniform(PRICE_MIN_PER_KWH, PRICE_MAX_PER_KWH)
+        revenue = price * used_from_lot
+        profit = revenue - total_generation_cost
         lot_cost = float("inf") if used_from_lot == 0 else total_generation_cost / used_from_lot
 
         lot_hourly.append(
@@ -108,6 +114,10 @@ def _build_lot_hourly_breakdown(
                 "consumed": consumed,
                 "used_from_lot": used_from_lot,
                 "cost": lot_cost,
+                "price": price,
+                "revenue": revenue,
+                "profit": profit,
+                "generation_cost": total_generation_cost,
             }
         )
     return lot_hourly
@@ -117,7 +127,7 @@ def _daily_lot_cost(lot_hourly: Sequence[Dict[str, float]]) -> float:
     used_total = sum(hour_row["used_from_lot"] for hour_row in lot_hourly)
     if used_total == 0:
         return float("inf")
-    total_cost = sum(hour_row["cost"] * hour_row["used_from_lot"] for hour_row in lot_hourly)
+    total_cost = sum(hour_row["generation_cost"] for hour_row in lot_hourly)
     return total_cost / used_total
 
 
@@ -164,5 +174,7 @@ def calculate_cost(weather_data, generation_data):
         )
         result["lot_hourly"] = lot_hourly
         result["lot"] = _daily_lot_cost(lot_hourly)
+        result["hourly_profit"] = [hour_row["profit"] for hour_row in lot_hourly]
+        result["profit"] = sum(result["hourly_profit"])
 
     return result
